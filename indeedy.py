@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This module contains utilities for performing automated searches on Indeed.com
+This module contains utilities for performing automated searches on Indeed.my
 
 @author: Pete Bachant (petebachant@gmail.com)
 """
@@ -11,31 +11,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Sample variables to consider
-cad = ["SolidWorks",
-       "Catia",
-       "Pro/ENGINEER",
-       "Creo",
-       "Unigraphics",
-       "NX",
-       "Inventor"]
 language = ["Python",
             "C",
             "Java",
             "MATLAB",
-            "LabVIEW",
-            "FORTRAN"]
+            "Hadoop",
+            "R"]
 degree = ["BS",
           "MS",
           "PhD"]
-cfd = ["OpenFOAM",
-       "Fluent",
-       "COMSOL",
-       "SolidWorks Flow Simulation"]
-welding = ["MIG",
-           "TIG",
-           "stick"]
-           
-locations = ["Anywhere", "MA", "CA", "KS", "TX", "NH", "Hawaii"]
+
+locations = ["Anywhere", "Kuala Lumpur", "Petaling"]
 
 def find_jobs(job, location=""):
     """This function searches Indeed.com and returns the number of results."""
@@ -43,7 +29,7 @@ def find_jobs(job, location=""):
     job_url = job_url.replace("/", "%2F")
     loc_url = "+".join(location.split())
     loc_url = loc_url.replace(",", "%2C")
-    url = "http://www.indeed.com/jobs?q=" + job_url + "&l=" + loc_url
+    url = "http://www.indeed.com.my/jobs?q=" + job_url + "&l=" + loc_url
     soup = BeautifulSoup(urllib2.urlopen(url).read())
     line = soup.find("meta", {"name":"description"})['content']
     njobs = line.split()[0].replace(",", "")
@@ -59,7 +45,7 @@ def find_salary(job, location=""):
     job_url = job_url.replace("/", "%2F")
     loc_url = "+".join(location.split())
     loc_url = loc_url.replace(",", "%2C")
-    url_sal = "http://www.indeed.com/salary?q1=" + job_url + "&l1=" + loc_url
+    url_sal = "http://www.indeed.com.my/salary?q1=" + job_url + "&l1=" + loc_url
     soup_sal = BeautifulSoup(urllib2.urlopen(url_sal).read())
     line_sal = soup_sal.find("meta", {"name":"description"})['content']
     salary = re.findall("\d+\,\d+", line_sal)[0].replace(",", "")
@@ -121,7 +107,7 @@ if __name__ == "__main__":
     plt.close("all")
 #    print find_jobs("welder", location="")
 #    print find_salary("welder")
-    njobs, salaries = compare_jobs_title(cad, constant="mechanical engineer",
+    njobs, salaries = compare_jobs_title(language, constant="big data",
                                          location="")
 #    njobs, salaries = compare_jobs_loc("mechanical engineer", locations)
-    dual_bar_graph(cad, njobs, salaries)
+    dual_bar_graph(language, njobs, salaries)
