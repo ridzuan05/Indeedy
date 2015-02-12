@@ -1,36 +1,52 @@
 # -*- coding: utf-8 -*-
 """
-This module contains utilities for performing automated searches on Indeed.my
+This module contains utilities for performing automated searches on Indeed.MY
 
 @author: Pete Bachant (petebachant@gmail.com)
 """
-import urllib2
-from BeautifulSoup import BeautifulSoup
+import urllib
+from bs4 import BeautifulSoup
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Sample variables to consider
-language = ["Python",
-            "C",
+language = ["SQL",
+            "Python",
+            "R",
             "Java",
-            "MATLAB",
+            "C",
+            "SAP",
+            "SAS",
+            "SPSS",
             "Hadoop",
-            "R"]
-degree = ["BS",
-          "MS",
+            "MongoDB",
+            "NoSQL"]
+platform = ["Windows",
+            ".NET",
+            "Unix",
+            "Linux"]
+industry = ["Bank",
+            "Engineering",
+            "Software",
+            "Consulting",
+            "Electronics",
+            "Government"]
+degree = ["Degree",
+          "Master",
           "PhD"]
 
-locations = ["Anywhere", "Kuala Lumpur", "Petaling"]
+locations = ["Kuala Lumpur", "Petaling", "Selangor", "Cyberjaya", "Penang",
+             "Johor Bahru", "Klang", "Melaka"]
 
 def find_jobs(job, location=""):
-    """This function searches Indeed.com and returns the number of results."""
+    """This function searches Indeed.com.my and returns the number of results."""
     job_url = "+".join(job.split())
     job_url = job_url.replace("/", "%2F")
     loc_url = "+".join(location.split())
     loc_url = loc_url.replace(",", "%2C")
     url = "http://www.indeed.com.my/jobs?q=" + job_url + "&l=" + loc_url
-    soup = BeautifulSoup(urllib2.urlopen(url).read())
+    soup = BeautifulSoup(urllib.request.urlopen(url).read())
     line = soup.find("meta", {"name":"description"})['content']
     njobs = line.split()[0].replace(",", "")
     try:
@@ -45,8 +61,8 @@ def find_salary(job, location=""):
     job_url = job_url.replace("/", "%2F")
     loc_url = "+".join(location.split())
     loc_url = loc_url.replace(",", "%2C")
-    url_sal = "http://www.indeed.com.my/salary?q1=" + job_url + "&l1=" + loc_url
-    soup_sal = BeautifulSoup(urllib2.urlopen(url_sal).read())
+    url_sal = "http://www.indeed.com/salary?q1=" + job_url + "&l1=" + loc_url
+    soup_sal = BeautifulSoup(urllib.request.urlopen(url_sal).read())
     line_sal = soup_sal.find("meta", {"name":"description"})['content']
     salary = re.findall("\d+\,\d+", line_sal)[0].replace(",", "")
     try:
@@ -57,14 +73,14 @@ def find_salary(job, location=""):
     
 def compare_jobs_title(variable, constant="", location=""):
     """Searches for jobs with one variable and one constant. For example
-    constant could be "mechanical engineer" and variable could be a list of
+    constant could be "engineer" and variable could be a list of
     CAD software names."""
     njobs = np.zeros(len(variable), dtype=int)
     salaries = np.zeros(len(variable))
     for n in range(len(variable)):
         job = constant + " " + variable[n]
         njobs[n] = find_jobs(job, location)
-        salaries[n] = find_salary(job, location)
+#       salaries[n] = find_salary(job, location)
     return njobs, salaries
 
 def compare_jobs_loc(job, locations, plot=False):
@@ -93,7 +109,7 @@ def dual_bar_graph(names, njobs, salaries):
     ax.set_xticks(np.arange(len(names))+0.25)
     ax.set_xticklabels(names)
     ax.tick_params(axis='y', colors='b')
-    plt.ylabel("Number of results", color="b")
+    plt.ylabel("Number of jobs", color="b")
     ax1 = ax.twinx()
     ax1.bar(np.arange(len(names))+0.25, salaries, width=0.25, color="g")
     ax1.set_ylabel("Average salary (USD)", color="g")
@@ -105,9 +121,10 @@ if __name__ == "__main__":
     matplotlib.rcParams["font.family"] = "serif"
     matplotlib.rcParams["font.size"] = 14.0
     plt.close("all")
-#    print find_jobs("welder", location="")
-#    print find_salary("welder")
+#   print find_jobs("welder", location="")
+#   print find_salary("welder")
     njobs, salaries = compare_jobs_title(language, constant="big data",
                                          location="")
-#    njobs, salaries = compare_jobs_loc("mechanical engineer", locations)
-    dual_bar_graph(language, njobs, salaries)
+#   njobs, salaries = compare_jobs_loc("mechanical engineer", locations)
+#   dual_bar_graph(language, njobs, salaries)
+    bar_graph(language, njobs, ylabel="Number of Jobs")
